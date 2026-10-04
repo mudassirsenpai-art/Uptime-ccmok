@@ -32,3 +32,20 @@ jobs:
         COOKIES_JSON: ${{ secrets.COOKIES_JSON }}
       run: |
         python -u run_request.py
+
+    - name: Upload Screenshots
+      if: always()
+      id: upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ping-screenshots-${{ github.run_number }}
+        path: screenshots/
+        if-no-files-found: warn
+
+    - name: Show Screenshot Link
+      if: always()
+      run: |
+        echo "Screenshots: ${{ steps.upload.outputs.artifact-url }}"
+        echo "### Ping screenshots" >> $GITHUB_STEP_SUMMARY
+        echo "[Download screenshots](${{ steps.upload.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
+        echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
