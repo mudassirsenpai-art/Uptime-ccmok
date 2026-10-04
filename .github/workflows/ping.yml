@@ -31,4 +31,4 @@ jobs:
       env:
         COOKIES_JSON: ${{ secrets.COOKIES_JSON }}
       run: |
-        python -u run_playwright.py
+        python -u run_request.py
