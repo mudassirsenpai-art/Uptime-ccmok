@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import pathlib
 from playwright.sync_api import sync_playwright
 
 # GitHub Secret kadun cookies gheta ahe
@@ -30,6 +31,9 @@ except Exception as e:
     print(f"ERROR: Cookie JSON parse fail zala -> {e}", flush=True)
     exit(1)
 
+SHOT_DIR = pathlib.Path("screenshots")
+SHOT_DIR.mkdir(exist_ok=True)
+
 print("=== Starting Playwright Browser Session ===", flush=True)
 
 with sync_playwright() as p:
@@ -47,6 +51,7 @@ with sync_playwright() as p:
     page.goto(target_url, wait_until="networkidle")
 
     print(f"Page Loaded! Title: {page.title()}", flush=True)
+    page.screenshot(path=str(SHOT_DIR / "00_loaded.png"), full_page=True)
 
     # Continuous active ping loop (5 mins max limit per job run)
     start_time = time.time()
@@ -55,7 +60,10 @@ with sync_playwright() as p:
     while time.time() - start_time < max_duration:
         try:
             current_time = time.strftime('%H:%M:%S')
-            print(f"[{current_time}] Ping Sent. Title: {page.title()}", flush=True)
+            print(f"[{current_time}] Ping Sent. Title: {page.title()} | URL: {page.url}", flush=True)
+            shot = SHOT_DIR / f"ping_{time.strftime('%H%M%S')}.png"
+            page.screenshot(path=str(shot), full_page=True)
+            print(f"Screenshot saved: {shot}", flush=True)
             time.sleep(30)
             page.reload(wait_until="domcontentloaded")
         except Exception as e:
